@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/astaxie/beego/orm"
+	"github.com/ralphg6/goshua/models"
 )
 
 type Account struct {
@@ -21,7 +22,7 @@ func init() {
 }
 
 type AccountModel struct {
-	BaseCRUDModel
+	models.BaseCRUDModel
 }
 
 func NewAccountModel() (model AccountModel) {
