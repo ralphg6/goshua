@@ -12,19 +12,25 @@ import (
 )
 
 func init() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/", "root", "sandman123", "localhost:3306"))
+	config := map[string]string{
+		"user":     "root",
+		"password": "123456",
+		"url":      "localhost:3306",
+		"db":       "goshua_test",
+	}
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/", config["user"], config["password"], config["url"]))
 	if err != nil {
 		panic(err)
 	}
-	rows, err := db.Query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", "sandman_test")
+	rows, err := db.Query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", config["db"])
 	if err != nil {
 		panic(err)
 	}
 	if !rows.Next() {
-		db.Exec(fmt.Sprintf("CREATE DATABASE %s", "sandman_test"))
+		db.Exec(fmt.Sprintf("CREATE DATABASE %s", config["db"]))
 	}
 
-	orm.RegisterDataBase("default", "mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", "root", "sandman123", "localhost:3306", "sandman_test"))
+	orm.RegisterDataBase("default", "mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", config["user"], config["password"], config["url"], config["db"]))
 
 }
 
