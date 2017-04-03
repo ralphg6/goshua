@@ -1,4 +1,4 @@
-package models
+package goshua
 
 import (
 	"errors"
@@ -8,13 +8,22 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
+type CRUDModel interface {
+	//NewInstance(int) interface{}
+	Add(interface{}) (int64, error)
+	GetById(int) (interface{}, error)
+	GetAll(map[string]string, []string, []string, []string, int64, int64) ([]interface{}, error)
+	UpdateById(interface{}) error
+	Delete(int) error
+}
+
 type BaseCRUDModel struct {
 	NewInstance func(int) interface{}
 }
 
 // Add insert a new  into database and returns
 // last inserted Id on success.
-func (b *BaseCRUDModel) Add(m interface{}) (id int64, err error) {
+func (b BaseCRUDModel) Add(m interface{}) (id int64, err error) {
 	o := orm.NewOrm()
 	id, err = o.Insert(m)
 	return
@@ -22,13 +31,13 @@ func (b *BaseCRUDModel) Add(m interface{}) (id int64, err error) {
 
 // GetById retrieves  by Id. Returns error if
 // Id doesn't exist
-func (b *BaseCRUDModel) GetById(id int) (v interface{}, err error) {
+func (b BaseCRUDModel) GetById(id int) (v interface{}, err error) {
 	v = b.NewInstance(id)
 	err = orm.NewOrm().Read(v)
 	return
 }
 
-func (b *BaseCRUDModel) GetAll(query map[string]string, fields []string, sortby []string, order []string,
+func (b BaseCRUDModel) GetAll(query map[string]string, fields []string, sortby []string, order []string,
 	offset int64, limit int64) (ml []interface{}, err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(b.NewInstance(0))
@@ -104,14 +113,14 @@ func (b *BaseCRUDModel) GetAll(query map[string]string, fields []string, sortby 
 
 // Update updates by Id and returns error if
 // the record to be updated doesn't exist
-func (b *BaseCRUDModel) UpdateById(m interface{}) (err error) {
+func (b BaseCRUDModel) UpdateById(m interface{}) (err error) {
 	_, err = orm.NewOrm().Update(m)
 	return
 }
 
 // Delete deletes  by Id and returns error if
 // the record to be deleted doesn't exist
-func (b *BaseCRUDModel) Delete(id int) (err error) {
+func (b BaseCRUDModel) Delete(id int) (err error) {
 	v := b.NewInstance(id)
 	_, err = orm.NewOrm().Delete(v)
 	return

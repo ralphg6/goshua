@@ -1,12 +1,12 @@
-package controller
+package goshua
 
 import (
-	"encoding/json"
+	/*"encoding/json"
 	"errors"
 	"strconv"
 	"strings"
 
-	"git.labbs.com.br/sandman/run_accounts/models"
+	"git.labbs.com.br/sandman/run_accounts/models"*/
 
 	"github.com/astaxie/beego"
 )
@@ -14,14 +14,15 @@ import (
 // oprations for Accounts
 type BaseCRUDController struct {
 	beego.Controller
+	Model CRUDModel
 }
 
 func (c *BaseCRUDController) URLMapping() {
 	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
+	//c.Mapping("GetOne", c.GetOne)
+	//c.Mapping("GetAll", c.GetAll)
+	//c.Mapping("Put", c.Put)
+	//c.Mapping("Delete", c.Delete)
 }
 
 // @Title Post
@@ -30,7 +31,7 @@ func (c *BaseCRUDController) URLMapping() {
 // @Success 201 {int} models.Account
 // @Failure 403 body is empty
 // @router / [post]
-func (c *BaseCRUDController) Post() {
+/*func (c *BaseCRUDController) Post() {
 	var v models.Account
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		if _, err := models.AddAccount(&v); err == nil {
@@ -167,4 +168,4 @@ func (c *BaseCRUDController) Delete() {
 
 func (c *BaseCRUDController) Options() {
 	c.Ctx.ResponseWriter.WriteHeader(200)
-}
+}*/

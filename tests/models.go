@@ -1,4 +1,4 @@
-package models
+package tests
 
 import (
 	"github.com/astaxie/beego/orm"
@@ -21,11 +21,11 @@ func init() {
 	orm.RegisterModel(new(Account))
 }
 
-type AccountModel struct {
+type AccountsModel struct {
 	models.BaseCRUDModel
 }
 
-func NewAccountModel() (model AccountModel) {
+func NewAccountsModel() (model AccountsModel) {
 	model.NewInstance = func(id int) interface{} {
 		return &Account{Id: id}
 	}
