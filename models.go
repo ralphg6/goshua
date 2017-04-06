@@ -9,7 +9,7 @@ import (
 )
 
 type CRUDModel interface {
-	//NewInstance(int) interface{}
+	New(int) interface{}
 	Add(interface{}) (int64, error)
 	GetById(int) (interface{}, error)
 	GetAll(map[string]string, []string, []string, []string, int64, int64) ([]interface{}, error)
@@ -19,6 +19,10 @@ type CRUDModel interface {
 
 type BaseCRUDModel struct {
 	NewInstance func(int) interface{}
+}
+
+func (b BaseCRUDModel) New(id int) interface{} {
+	return b.NewInstance(id)
 }
 
 // Add insert a new  into database and returns

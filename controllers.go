@@ -1,12 +1,11 @@
 package goshua
 
 import (
-	/*"encoding/json"
+	"encoding/json"
+
 	"errors"
 	"strconv"
 	"strings"
-
-	"git.labbs.com.br/sandman/run_accounts/models"*/
 
 	"github.com/astaxie/beego"
 )
@@ -18,11 +17,27 @@ type BaseCRUDController struct {
 }
 
 func (c *BaseCRUDController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	//c.Mapping("GetOne", c.GetOne)
-	//c.Mapping("GetAll", c.GetAll)
-	//c.Mapping("Put", c.Put)
-	//c.Mapping("Delete", c.Delete)
+	c.Mapping("Post", c.HandleError(c.Post))
+	c.Mapping("GetOne", c.GetOne)
+	c.Mapping("GetAll", c.GetAll)
+	c.Mapping("Put", c.Put)
+	c.Mapping("Delete", c.Delete)
+}
+
+func (c *BaseCRUDController) HandleError(handler func() (interface{}, error)) {
+	v, err := handler()
+	if err != nil {
+		c.Data["json"] = err.Error()
+		if(c.Ctx.Output.Status == 0)
+			c.Ctx.Output.SetStatus(500)
+	}
+
+	c.Data["json"] = v
+	
+	if(c.Ctx.Output.Status == 0)
+		c.Ctx.Output.SetStatus(200)
+
+	c.ServeJSON()
 }
 
 // @Title Post
@@ -31,19 +46,32 @@ func (c *BaseCRUDController) URLMapping() {
 // @Success 201 {int} models.Account
 // @Failure 403 body is empty
 // @router / [post]
-/*func (c *BaseCRUDController) Post() {
-	var v models.Account
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddAccount(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
+func (c *BaseCRUDController) Post() (v interface{}, err error) {
+	v = c.Model.New(0)
+
+	err = json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	if err != nil {
+		c.Ctx.Output.SetStatus(400)
+		return
 	}
-	c.ServeJSON()
+
+	err = c.BeforeCreate(v)
+	if err != nil {
+		return
+	}
+
+	_, err := c.Model.Add(v)
+	if err != nil {
+		c.Ctx.Output.SetStatus(409)
+		return
+	}
+
+	err != c.AfterCreate(v)
+	if err != nil {
+		return
+	}
+
+	c.Ctx.Output.SetStatus(201)
 }
 
 // @Title Get
@@ -55,7 +83,7 @@ func (c *BaseCRUDController) URLMapping() {
 func (c *BaseCRUDController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetAccountById(id)
+	v, err := c.Model.GetById(id)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
@@ -117,7 +145,7 @@ func (c *BaseCRUDController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllAccounts(query, fields, sortby, order, offset, limit)
+	l, err := c.Model.GetAll(query, fields, sortby, order, offset, limit)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
@@ -136,9 +164,9 @@ func (c *BaseCRUDController) GetAll() {
 func (c *BaseCRUDController) Put() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.Account{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateAccountById(&v); err == nil {
+	v := c.Model.New(id)
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, v); err == nil {
+		if err := c.Model.UpdateById(v); err == nil {
 			c.Data["json"] = "OK"
 		} else {
 			c.Data["json"] = err.Error()
@@ -158,7 +186,7 @@ func (c *BaseCRUDController) Put() {
 func (c *BaseCRUDController) Delete() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteAccount(id); err == nil {
+	if err := c.Model.Delete(id); err == nil {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
@@ -168,4 +196,9 @@ func (c *BaseCRUDController) Delete() {
 
 func (c *BaseCRUDController) Options() {
 	c.Ctx.ResponseWriter.WriteHeader(200)
-}*/
+}
+
+//Observers
+
+func (c *BaseCRUDController) BeforeCreate(v interface{}) (err error) {}
+func (c *BaseCRUDController) AfterCreate(v interface{}) (err error)  {}
